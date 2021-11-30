@@ -6,7 +6,7 @@ k2 = 0
 a1 = 1
 l1 = 1
 l2 = 0
-b1 = 1
+b1 = 10
 
 X0 = 0.
 Y0 = 1.
@@ -40,7 +40,7 @@ def f(t):  # правая часть
 
 
 def get_y_t(t):  # точное решение
-    c = (1 - cos(sin(1))) / sin(sin(1))
+    c = (10 - cos(sin(1))) / sin(sin(1))
     return cos(sin(t)) + c * sin(sin(t))
 
 
