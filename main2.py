@@ -8,10 +8,6 @@ l1 = 1
 l2 = 0
 b1 = 10
 
-X0 = 0.
-Y0 = 1.
-B = 1
-
 START_N = 4
 FILENAME = 'table.csv'
 SPLIT_SYMBOL = ';'
@@ -20,7 +16,7 @@ from math import sin, cos, radians
 
 # Xi = X0 +ih
 def get_x(i, h):
-    return X0 + i * h
+    return a + i * h
 
 
 def write_to_csv(f, x, y_h, y_h_2, max_d, max_t):
@@ -45,7 +41,7 @@ def get_y_t(t):  # точное решение
 
 
 def get_h(n):
-    return (B - X0) / n
+    return (b - a) / n
 
 
 def get_arr_y_k(n, h):
