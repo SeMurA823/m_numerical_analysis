@@ -1,6 +1,6 @@
 E = 0.0001
-a = 0
-b = 1
+a = 0.
+b = 1.
 k1 = 1
 k2 = 0
 a1 = 1
@@ -12,6 +12,14 @@ START_N = 4
 FILENAME = 'table.csv'
 SPLIT_SYMBOL = ';'
 from math import sin, cos, radians
+
+
+def rangeWithEnd(start, stop, step=1):
+    if (step > 0):
+        stop = stop + 1
+    else:
+        stop = stop - 1
+    return range(start, stop, step)
 
 
 # Xi = X0 +ih
@@ -45,23 +53,23 @@ def get_h(n):
 
 
 def get_arr_y_k(n, h):
+    t = [get_x(i, h) for i in rangeWithEnd(0, n)]
     aa, bb, cc, ff = [], [], [], []
-    for i in range(0, n):
-        aa.append(1 - p(get_x(i, h)) * h / 2)
-        bb.append(1 + p(get_x(i, h)) * h / 2)
-        cc.append(2 - g(get_x(i, h)) * h * h)
-        ff.append(h * h * f(get_x(i, h)))
-
-    at, bt, u = [0 for i in range(n + 1)], [0 for i in range(n + 1)], [0 for i in range(n + 1)]
-    at[1] = (k2 / (k2 - k1 * h))
-    bt[1] = (-(a1 * h) / (k2 - k1 * h))
-    for i in range(1, n):
-        at[i + 1] = (bb[i] / (cc[i] - at[i] * aa[i]))
-        bt[i + 1] = ((aa[i] * bt[i] - ff[i]) / (cc[i] - at[i] * aa[i]))
-    u[n] = ((l2 * bt[n] + b1 * h) / (l2 + h * l1 - l2 * at[n]))
-    print(u[n])
-    for i in range(n - 1, -1, -1):
-        u[i] = at[i + 1] * u[i + 1] + bt[i + 1]
+    for i in rangeWithEnd(0, n):
+        aa.append(1 - p(t[i]) * h / 2)
+        bb.append(1 + p(t[i]) * h / 2)
+        cc.append(2 - g(t[i]) * h**2)
+        ff.append(h ** 2 * f(t[i]))
+    al = [0 for _ in rangeWithEnd(0, n)]
+    bet, u = [0 for _ in rangeWithEnd(0, n)], [0 for _ in rangeWithEnd(0, n)]
+    al[1] = k2 / (k2 - k1 * h)
+    bet[1] = -(a1 * h) / (k2 - k1 * h)
+    for i in rangeWithEnd(1, n - 1):
+        al[i + 1] = (bb[i] / (cc[i] - al[i] * aa[i]))
+        bet[i + 1] = ((aa[i] * bet[i] - ff[i]) / (cc[i] - al[i] * aa[i]))
+    u[n] = ((l2 * bet[n] + b1 * h) / (l2 + h * l1 - l2 * al[n]))
+    for i in rangeWithEnd(n - 1, 0, -1):
+        u[i] = al[i + 1] * u[i + 1] + bet[i + 1]
     return u
 
 
@@ -85,8 +93,8 @@ def main():
     print(f"------------START CALCULATE----------------")
 
     y_arr_old = get_arr_y_k(n, get_h(n))
-    print(y_arr_old)
     while True:
+        max_t = 0
         count += 1
         n *= 2
         # Шаг
@@ -99,7 +107,7 @@ def main():
             y_k = y_arr[i]
             # Разность с точным решением
             t = abs(y_k - get_y_t(x_k))
-            if t > max_t:
+            if (max_t < t):
                 max_t = t
             # Дополнительное поведение для чисел, с одинаковым шагом из предыдущего
             if i % 2 == 0:
@@ -115,9 +123,7 @@ def main():
             else:
                 # Записываем в таблицу
                 write_to_csv(file_table, x_k, "", y_k, "", t)
-
-        if max_d_local > max_d:
-            max_d = max_d_local
+        max_d = max_d_local
         if max_d_local < E:
             break
         y_arr_old = y_arr
@@ -130,6 +136,5 @@ def main():
     print(f"max|Y(n/2) - Yточн| : {max_t}")
     print(f"Таблицы : {FILENAME}")
     print(f"--------------------------------------------\n")
-
 
 main()
