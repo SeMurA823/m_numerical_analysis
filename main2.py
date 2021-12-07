@@ -1,4 +1,4 @@
-E = 0.0001
+E = 0.001
 a = 0.
 b = 1.
 k1 = 1
@@ -11,7 +11,7 @@ b1 = 10
 START_N = 4
 FILENAME = 'table.csv'
 SPLIT_SYMBOL = ';'
-from math import sin, cos, radians
+from math import sin, cos
 
 
 def rangeWithEnd(start, stop, step=1):
@@ -58,7 +58,7 @@ def get_arr_y_k(n, h):
     for i in rangeWithEnd(0, n):
         aa.append(1 - p(t[i]) * h / 2)
         bb.append(1 + p(t[i]) * h / 2)
-        cc.append(2 - g(t[i]) * h**2)
+        cc.append(2 - g(t[i]) * h ** 2)
         ff.append(h ** 2 * f(t[i]))
     al = [0 for _ in rangeWithEnd(0, n)]
     bet, u = [0 for _ in rangeWithEnd(0, n)], [0 for _ in rangeWithEnd(0, n)]
@@ -78,37 +78,33 @@ def main():
     print(f"SPLIT SYMBOL : '{SPLIT_SYMBOL}'")
 
     print(f"E : {E}")
-    count = 0
+    count, max_t, max_d = 0, 0, 0
     n = START_N
     file_table = open(FILENAME, 'w')
 
     file_table.write(
         f"X{SPLIT_SYMBOL}Y(h){SPLIT_SYMBOL}Y(h/2){SPLIT_SYMBOL}|Y(h) - Y(h/2)|{SPLIT_SYMBOL}|Y(h/2) - Yточ|\n")
-    # max|Yh-Yh/2|
-    max_d = 0
-    # max|Yh/2 - Yточн|
-    max_t = 0
 
     print(f"-------------------------------------------\n")
     print(f"------------START CALCULATE----------------")
 
     y_arr_old = get_arr_y_k(n, get_h(n))
     while True:
-        max_t = 0
         count += 1
         n *= 2
         # Шаг
         h = get_h(n)
         # новый набор значений Y
         y_arr = get_arr_y_k(n, h)
+        max_t_local = 0
         max_d_local = 0
         for i in range(len(y_arr)):
             x_k = get_x(i, h)
             y_k = y_arr[i]
             # Разность с точным решением
             t = abs(y_k - get_y_t(x_k))
-            if (max_t < t):
-                max_t = t
+            if (max_t_local < t):
+                max_t_local = t
             # Дополнительное поведение для чисел, с одинаковым шагом из предыдущего
             if i % 2 == 0:
                 # Берем старый Y для того же X
@@ -124,10 +120,12 @@ def main():
                 # Записываем в таблицу
                 write_to_csv(file_table, x_k, "", y_k, "", t)
         max_d = max_d_local
+        max_t = max_t_local
         if max_d_local < E:
             break
         y_arr_old = y_arr
         file_table.write("\n\n")
+
     # Навёл красоты на вывод)
     print(f"--------------END CALCULATE-----------------\n")
     print(f"----------------RESULTS---------------------")
@@ -136,5 +134,6 @@ def main():
     print(f"max|Y(n/2) - Yточн| : {max_t}")
     print(f"Таблицы : {FILENAME}")
     print(f"--------------------------------------------\n")
+
 
 main()
